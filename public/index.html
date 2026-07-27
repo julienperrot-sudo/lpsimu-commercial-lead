@@ -214,7 +214,7 @@ tbody tr.alert-red td { background:#FFEBEE !important; }
             <option value="date_desc">Plus récent</option>
             <option value="date_asc">Plus ancien</option>
             <option value="budget_desc">Budget ↓</option>
-            <option value="alert">Alertes d'abord</option>
+            <option value="alert">Alertes avant tout</option>
           </select>
           <div class="view-toggle">
             <button class="btn btn-outline active" id="btnTable" onclick="setView('table')">☰</button>
@@ -263,7 +263,7 @@ function setStatus(msg, type) {
 
 async function extractLead() {
   const msg = document.getElementById('rawMessage').value.trim();
-  if (!msg) { alert('Collez d'abord un message !'); return; }
+  if (!msg) { alert('Collez un message avant de continuer !'); return; }
   const btn = document.getElementById('extractBtn');
   btn.disabled = true;
   setStatus('Claude analyse le message…', 'loading');
