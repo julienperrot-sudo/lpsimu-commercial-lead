@@ -521,6 +521,21 @@ function renderHistory() {
     c.innerHTML = `<div class="cards-grid">${cards}</div>`;
   }
 }
+
+// Source buttons via event delegation
+document.getElementById('sourceSelector').addEventListener('click', function(e) {
+  var btn = e.target.closest('.source-btn');
+  if (!btn) return;
+  document.querySelectorAll('.source-btn').forEach(function(b) { b.classList.remove('active'); });
+  btn.classList.add('active');
+  selectedSource = btn.getAttribute('data-source');
+  if (currentLead) {
+    currentLead.source = selectedSource;
+    var el = document.getElementById('field_source');
+    if (el) el.value = selectedSource;
+    updateExcelRow();
+  }
+});
 </script>
 </body>
 </html>
