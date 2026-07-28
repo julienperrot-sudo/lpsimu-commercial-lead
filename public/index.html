@@ -232,6 +232,24 @@ tbody tr.alert-red td { background:#FFEBEE !important; }
 
 </div>
 
+<!-- MODAL DÉTAIL LEAD -->
+<div class="modal-overlay" id="leadModal">
+  <div class="modal">
+    <div class="modal-header">
+      <h3 id="modalTitle">Détail lead</h3>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="modal-grid" id="modalGrid"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-delete" onclick="deleteFromModal()">🗑 Supprimer</button>
+      <button class="btn btn-outline" onclick="closeModal()">Annuler</button>
+      <button class="btn btn-dark" onclick="saveFromModal()">💾 Enregistrer les modifications</button>
+    </div>
+  </div>
+</div>
+
 <script>
 let currentLead = null;
 let selectedSource = 'Instagram';
@@ -480,6 +498,95 @@ async function deleteLead(id) {
   } catch(e) {
     alert("Erreur suppression : " + e.message);
   }
+}
+
+let currentModalLead = null;
+
+function openModal(lead) {
+  currentModalLead = JSON.parse(JSON.stringify(lead));
+  document.getElementById('modalTitle').textContent = (lead.prenom||'') + ' ' + (lead.nom||'') + ' — ' + (lead.simulateur||'Lead');
+  const grid = document.getElementById('modalGrid');
+  const SIMULATEURS = ['LP Box','LP1','LP2','LP3','LP4','LP5','LP Rally','LP Sur-mesure'];
+  const SOURCES = ['Instagram','Shopify','Site web','Téléphone','Email','Salon/Événement','Bouche-à-oreille','Autre'];
+  const STATUTS = ['Nouveau contact','Contact pris','Devis envoyé','Relance','Gagné','Perdu'];
+  const fields = [
+    {key:'date',label:'Date',type:'text'},
+    {key:'source',label:'Source',type:'select',options:SOURCES},
+    {key:'prenom',label:'Prénom',type:'text'},
+    {key:'nom',label:'Nom',type:'text'},
+    {key:'email',label:'Email',type:'email'},
+    {key:'telephone',label:'Téléphone',type:'text'},
+    {key:'ville',label:'Ville',type:'text'},
+    {key:'pays',label:'Pays',type:'text'},
+    {key:'simulateur',label:'Simulateur',type:'select',options:SIMULATEURS},
+    {key:'budget',label:'Budget (€)',type:'text'},
+    {key:'statut',label:'Statut',type:'select',options:STATUTS},
+    {key:'commentaires',label:'Commentaires',type:'textarea',full:true},
+  ];
+  grid.innerHTML = fields.map(f => {
+    const val = lead[f.key]||'';
+    let input;
+    if (f.type==='select') {
+      const opts = ['',...f.options].map(o => `<option value="${o}" ${o===val?'selected':''}>${o||'— Sélectionner —'}</option>`).join('');
+      input = `<select class="modal-input" id="modal_${f.key}" onchange="currentModalLead['${f.key}']=this.value">${opts}</select>`;
+    } else if (f.type==='textarea') {
+      input = `<textarea class="modal-input" id="modal_${f.key}" rows="3" oninput="currentModalLead['${f.key}']=this.value">${val}</textarea>`;
+    } else {
+      input = `<input class="modal-input" id="modal_${f.key}" type="${f.type}" value="${val}" oninput="currentModalLead['${f.key}']=this.value">`;
+    }
+    return `<div class="modal-field${f.full?' full':''}" ><label>${f.label}</label>${input}</div>`;
+  }).join('');
+  document.getElementById('leadModal').classList.add('open');
+}
+
+function closeModal() {
+  document.getElementById('leadModal').classList.remove('open');
+  currentModalLead = null;
+}
+
+async function saveFromModal() {
+  if (!currentModalLead) return;
+  try {
+    const res = await fetch('/.netlify/functions/leads', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify(currentModalLead)
+    });
+    const idx = allLeads.findIndex(l => l.id === currentModalLead.id);
+    if (idx>=0) allLeads[idx] = {...currentModalLead};
+    closeModal();
+    renderHistory();
+  } catch(e) { alert('Erreur : ' + e.message); }
+}
+
+async function deleteFromModal() {
+  if (!currentModalLead) return;
+  if (!confirm('Supprimer ce lead définitivement ?')) return;
+  try {
+    await fetch('/.netlify/functions/leads', {
+      method: 'DELETE',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({id: currentModalLead.id})
+    });
+    allLeads = allLeads.filter(l => l.id !== currentModalLead.id);
+    document.getElementById('histCount').textContent = allLeads.length;
+    closeModal();
+    renderHistory();
+  } catch(e) { alert('Erreur : ' + e.message); }
+}
+
+async function deleteLead(id) {
+  if (!confirm('Supprimer ce lead ?')) return;
+  try {
+    await fetch('/.netlify/functions/leads', {
+      method: 'DELETE',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({id})
+    });
+    allLeads = allLeads.filter(l => l.id !== id);
+    document.getElementById('histCount').textContent = allLeads.length;
+    renderHistory();
+  } catch(e) { alert('Erreur : ' + e.message); }
 }
 
 function renderHistory() {
