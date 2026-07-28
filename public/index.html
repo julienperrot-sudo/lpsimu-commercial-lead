@@ -780,6 +780,86 @@ document.getElementById('sourceSelector').addEventListener('click', function(e) 
     updateExcelRow();
   }
 });
+
+// ── MODAL LEAD ────────────────────────────────────────────────────
+var _modalLead = null;
+
+function openModal(lead) {
+  if (!lead) return;
+  _modalLead = JSON.parse(JSON.stringify(lead));
+  if (!_modalLead.comments) _modalLead.comments = [];
+  document.getElementById('modalTitle').textContent = (_modalLead.prenom||'') + ' ' + (_modalLead.nom||'');
+  var SIMS = ['LP Box','LP1','LP2','LP3','LP4','LP5','LP Rally','LP Sur-mesure'];
+  var SRCS = ['Instagram','Shopify','Site web','Téléphone','Email','Salon/Événement','Bouche-à-oreille','Autre'];
+  var STTS = ['Nouveau contact','Contact pris','Devis envoyé','Relance','Gagné','Perdu'];
+  var fields = [
+    {k:'date',l:'Date',t:'text'},{k:'source',l:'Source',t:'select',o:SRCS},
+    {k:'prenom',l:'Prénom',t:'text'},{k:'nom',l:'Nom',t:'text'},
+    {k:'email',l:'Email',t:'email'},{k:'telephone',l:'Téléphone',t:'text'},
+    {k:'ville',l:'Ville',t:'text'},{k:'pays',l:'Pays',t:'text'},
+    {k:'simulateur',l:'Simulateur',t:'select',o:SIMS},
+    {k:'budget',l:'Budget (€)',t:'text'},{k:'statut',l:'Statut',t:'select',o:STTS},
+  ];
+  var html = '';
+  fields.forEach(function(f) {
+    var v = _modalLead[f.k]||'';
+    var inp = '';
+    if (f.t==='select') {
+      var opts = [''].concat(f.o).map(function(o){return '<option value="'+o+'" '+(o===v?'selected':'')+'>'+(o||'— Sélectionner —')+'</option>';}).join('');
+      inp = '<select class="modal-input" onchange="_modalLead.'+f.k+'=this.value">'+opts+'</select>';
+    } else {
+      inp = '<input class="modal-input" type="'+f.t+'" value="'+v+'" oninput="_modalLead.'+f.k+'=this.value">';
+    }
+    html += '<div class="modal-field"><label>'+f.l+'</label>'+inp+'</div>';
+  });
+  document.getElementById('modalGrid').innerHTML = html;
+  renderComments();
+  document.getElementById('leadModal').classList.add('open');
+}
+
+function renderComments() {
+  var hist = document.getElementById('commentHistory');
+  var icons = {Email:'📧',Téléphone:'📞',Physique:'🤝',Visio:'💻',WhatsApp:'💬',Note:'📝'};
+  if (!_modalLead.comments || !_modalLead.comments.length) {
+    hist.innerHTML = '<p style="font-size:12px;color:#aaa;font-style:italic;">Aucun commentaire pour l instant.</p>';
+    return;
+  }
+  hist.innerHTML = _modalLead.comments.slice().reverse().map(function(c) {
+    return '<div class="comment-item"><div class="comment-item-header"><span class="comment-item-date">'+c.date+'</span><span class="comment-item-type">'+(icons[c.type]||'')+ ' '+c.type+'</span></div><div class="comment-item-text">'+c.text+'</div></div>';
+  }).join('');
+}
+
+function addComment() {
+  var type = document.getElementById('newCommentType').value;
+  var text = document.getElementById('newCommentText').value.trim();
+  if (!text) return;
+  if (!_modalLead.comments) _modalLead.comments = [];
+  var now = new Date();
+  _modalLead.comments.push({
+    date: now.toLocaleDateString('fr-FR')+' '+now.toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'}),
+    type: type,
+    text: text
+  });
+  document.getElementById('newCommentText').value = '';
+  renderComments();
+}
+
+function closeModal() {
+  document.getElementById('leadModal').classList.remove('open');
+  _modalLead = null;
+}
+
+async function saveModal() {
+  if (!_modalLead) return;
+  var idx = allLeads.findIndex(function(l){return l.id===_modalLead.id;});
+  if (idx>=0) allLeads[idx] = JSON.parse(JSON.stringify(_modalLead));
+  try {
+    await fetch('/.netlify/functions/leads',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(_modalLead)});
+  } catch(e) {}
+  closeModal();
+  renderHistory();
+}
+
 </script>
 
 
