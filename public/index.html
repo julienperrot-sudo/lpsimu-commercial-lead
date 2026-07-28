@@ -177,6 +177,13 @@ tbody tr.alert-red td { background:#FFEBEE !important; }
   .row-link { cursor: pointer; }
   .row-link:hover td { background: #FFF9C4 !important; }
 </style>
+<script>
+function selectSource(btn) {
+  document.querySelectorAll('.source-btn').forEach(function(b) { b.classList.remove('active'); });
+  btn.classList.add('active');
+  window.selectedSource = btn.getAttribute('data-source') || btn.dataset.source;
+}
+</script>
 </head>
 <body>
 
