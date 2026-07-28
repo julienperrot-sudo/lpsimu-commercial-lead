@@ -118,7 +118,10 @@ tbody tr.alert-red td { background:#FFEBEE !important; }
 .empty-state .ico { font-size:32px; margin-bottom:8px; }
 .loading-state { text-align:center; padding:36px; color:var(--gray-dark); font-size:13px; }
 
-.btn-del { background:transparent; color:#F44336; border:1.5px solid #F44336; padding:3px 8px; border-radius:4px; font-size:11px; font-weight:700; cursor:pointer; }
+@keyframes blink { 0%,100%{background:#FFEBEE} 50%{background:#FFCDD2} }
+  .rappel-today td { animation:blink 1s infinite !important; }
+  .rappel-badge { display:inline-block; background:#F44336; color:#fff; font-size:9px; font-weight:700; padding:1px 5px; border-radius:8px; margin-left:4px; vertical-align:middle; }
+  .btn-del { background:transparent; color:#F44336; border:1.5px solid #F44336; padding:3px 8px; border-radius:4px; font-size:11px; font-weight:700; cursor:pointer; }
   .btn-del:hover { background:#F44336; color:#fff; }
   /* MODAL */
   #leadModal { display:none; }
@@ -732,7 +735,8 @@ function renderHistory() {
   if (histView === 'table') {
     const rows = data.map(l => {
       const a = alertLevel(l);
-      return `<tr class="${a===2?'alert-red':a===1?'alert-orange':''}" style="cursor:pointer" onclick="openModal(allLeads.find(function(x){return x.id==='${l.id}'}))"> 
+      var rappelDue = l.rappel && new Date(l.rappel) <= new Date() && l.statut !== 'Gagné' && l.statut !== 'Perdu';
+      return `<tr class="${a===2?'alert-red':a===1?'alert-orange':rappelDue?'rappel-today':''}" style="cursor:pointer" onclick="openModal(allLeads.find(function(x){return x.id==='${l.id}'}))"> 
         <td>${l.date}</td>
         <td><strong>${l.prenom||''} ${l.nom||''}</strong></td>
         <td style="color:#666">${l.ville||'—'}</td>
@@ -814,7 +818,7 @@ function openModal(lead) {
     {k:'email',l:'Email',t:'email'},{k:'telephone',l:'Téléphone',t:'text'},
     {k:'ville',l:'Ville',t:'text'},{k:'pays',l:'Pays',t:'text'},
     {k:'simulateur',l:'Simulateur',t:'select',o:SIMS},
-    {k:'budget',l:'Budget (€)',t:'text'},{k:'statut',l:'Statut',t:'select',o:STTS},
+    {k:'budget',l:'Budget (€)',t:'text'},{k:'statut',l:'Statut',t:'select',o:STTS},{k:'rappel',l:'🔔 Rappel le',t:'date'},
   ];
   var html = '';
   fields.forEach(function(f) {
