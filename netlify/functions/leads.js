@@ -1,72 +1,38 @@
 const { getStore } = require("@netlify/blobs");
 
 exports.handler = async (event) => {
-  const store = getStore("leads");
+  const headers = { "Content-Type": "application/json" };
 
-  // GET - récupérer tous les leads
-  if (event.httpMethod === "GET") {
-    try {
+  try {
+    const store = getStore("leads");
+
+    if (event.httpMethod === "GET") {
       const list = await store.list();
       const leads = [];
-      for (const key of list.blobs) {
-        const data = await store.get(key.key, { type: "json" });
-        if (data) leads.push(data);
+      for (const item of list.blobs) {
+        try {
+          const data = await store.get(item.key, { type: "json" });
+          if (data) leads.push(data);
+        } catch(e) {}
       }
-      leads.sort((a, b) => new Date(b.id) - new Date(a.id));
-      return {
-        statusCode: 200,
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(leads)
-      };
-    } catch (e) {
-      return { statusCode: 500, body: JSON.stringify({ error: e.message }) };
+      leads.sort((a, b) => parseInt(b.id || 0) - parseInt(a.id || 0));
+      return { statusCode: 200, headers, body: JSON.stringify(leads) };
     }
-  }
 
-  // POST - sauvegarder un lead
-  if (event.httpMethod === "POST") {
-    try {
+    if (event.httpMethod === "POST") {
       const lead = JSON.parse(event.body);
-      await store.setJSON(lead.id, lead);
-      return {
-        statusCode: 200,
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ success: true })
-      };
-    } catch (e) {
-      return { statusCode: 500, body: JSON.stringify({ error: e.message }) };
+      await store.setJSON(lead.id.toString(), lead);
+      return { statusCode: 200, headers, body: JSON.stringify({ success: true }) };
     }
-  }
 
-  // PUT - mettre à jour un lead (statut etc.)
-  if (event.httpMethod === "PUT") {
-    try {
-      const lead = JSON.parse(event.body);
-      await store.setJSON(lead.id, lead);
-      return {
-        statusCode: 200,
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ success: true })
-      };
-    } catch (e) {
-      return { statusCode: 500, body: JSON.stringify({ error: e.message }) };
-    }
-  }
-
-  // DELETE - supprimer un lead
-  if (event.httpMethod === "DELETE") {
-    try {
+    if (event.httpMethod === "DELETE") {
       const { id } = JSON.parse(event.body);
-      await store.delete(id);
-      return {
-        statusCode: 200,
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ success: true })
-      };
-    } catch (e) {
-      return { statusCode: 500, body: JSON.stringify({ error: e.message }) };
+      await store.delete(id.toString());
+      return { statusCode: 200, headers, body: JSON.stringify({ success: true }) };
     }
-  }
 
-  return { statusCode: 405, body: "Method Not Allowed" };
+    return { statusCode: 405, body: "Method Not Allowed" };
+  } catch (e) {
+    return { statusCode: 500, headers, body: JSON.stringify({ error: e.message }) };
+  }
 };
