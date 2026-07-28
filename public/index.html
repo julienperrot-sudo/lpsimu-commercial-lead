@@ -728,22 +728,6 @@ document.getElementById('sourceSelector').addEventListener('click', function(e) 
   }
 });
 </script>
-<script>
-// Fallback: attach mousedown listeners directly to each source button
-window.addEventListener('load', function() {
-  document.querySelectorAll('.source-btn').forEach(function(btn) {
-    btn.addEventListener('mousedown', function(e) {
-      e.preventDefault();
-      document.querySelectorAll('.source-btn').forEach(function(b) { b.classList.remove('active'); });
-      btn.classList.add('active');
-      window.selectedSource = btn.getAttribute('data-source');
-    });
-  });
-  document.getElementById('extractBtn').addEventListener('mousedown', function(e) {
-    e.preventDefault();
-    extractLead();
-  });
-});
-</script>
+
 </body>
 </html>
