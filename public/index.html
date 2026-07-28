@@ -183,6 +183,20 @@ function selectSource(btn) {
   btn.classList.add('active');
   window.selectedSource = btn.getAttribute('data-source') || btn.dataset.source;
 }
+document.addEventListener('DOMContentLoaded', function() {
+  document.querySelectorAll('.source-btn').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      document.querySelectorAll('.source-btn').forEach(function(b) { b.classList.remove('active'); });
+      btn.classList.add('active');
+      window.selectedSource = btn.getAttribute('data-source');
+      if (window.currentLead) {
+        window.currentLead.source = window.selectedSource;
+        var el = document.getElementById('field_source');
+        if (el) el.value = window.selectedSource;
+      }
+    }, true);
+  });
+});
 </script>
 </head>
 <body>
