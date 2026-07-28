@@ -118,7 +118,9 @@ tbody tr.alert-red td { background:#FFEBEE !important; }
 .empty-state .ico { font-size:32px; margin-bottom:8px; }
 .loading-state { text-align:center; padding:36px; color:var(--gray-dark); font-size:13px; }
 
-@media(max-width:600px) {
+.btn-del { background:transparent; color:#F44336; border:1.5px solid #F44336; padding:3px 8px; border-radius:4px; font-size:11px; font-weight:700; cursor:pointer; }
+  .btn-del:hover { background:#F44336; color:#fff; }
+  @media(max-width:600px) {
   .container { padding:12px; }
   .result-grid { grid-template-columns:1fr; }
   .stats-row { grid-template-columns:repeat(2,1fr); }
@@ -652,6 +654,20 @@ async function deleteLead(id) {
       body: JSON.stringify({id})
     });
     allLeads = allLeads.filter(l => l.id !== id);
+    document.getElementById('histCount').textContent = allLeads.length;
+    renderHistory();
+  } catch(e) { alert('Erreur : ' + e.message); }
+}
+
+async function delLead(id) {
+  if (!confirm('Supprimer ce lead ?')) return;
+  try {
+    await fetch('/.netlify/functions/leads', {
+      method: 'DELETE',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({id: id})
+    });
+    allLeads = allLeads.filter(function(l) { return l.id !== id; });
     document.getElementById('histCount').textContent = allLeads.length;
     renderHistory();
   } catch(e) { alert('Erreur : ' + e.message); }
