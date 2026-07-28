@@ -583,10 +583,9 @@ function openModal(lead) {
     } else if (f.type==='chance') {
       var cv = parseInt(lead[f.key])||50;
       input = '<div style="display:flex;align-items:center;gap:12px;padding:4px 0">' +
-        '<input type="range" min="0" max="100" step="5" value="'+cv+'" style="flex:1;accent-color:#E8C547;" ' +
-        'id="modal_'+f.key+'" ' +
-        'oninput="currentModalLead[''+f.key+'']=parseInt(this.value);document.getElementById('rv_'+f.key+'').textContent=this.value+'%'">' +
-        '<strong id="rv_'+f.key+'" style="min-width:40px;color:#1A1A2E;">'+cv+'%</strong>' +
+        '<input type="range" min="0" max="100" step="5" value="' + cv + '" style="flex:1;accent-color:#E8C547;" id="modal_' + f.key + '" ' +
+        'oninput="currentModalLead.chance=parseInt(this.value);document.getElementById('rv_chance').textContent=this.value+'%'">' +
+        '<strong id="rv_chance" style="min-width:40px;color:#1A1A2E;">' + cv + '%</strong>' +
         '</div>';
     } else if (f.type==='textarea') {
       input = `<textarea class="modal-input" id="modal_${f.key}" rows="3" oninput="currentModalLead['${f.key}']=this.value">${val}</textarea>`;
