@@ -613,13 +613,21 @@ function renderHistory() {
         <td>${l.budget?l.budget+' €':'—'}</td>
         <td><span class="${badgeClass(l.statut)}">${l.statut}</span></td>
         <td>${alertPill(l)}</td>
-        <td style="color:#666;font-size:11px;max-width:130px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${l.commentaires||''}</td>
+        <td style="color:#666;font-size:11px;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${l.commentaires||''}</td>
+        <td><button class="btn-delete" data-id="${l.id}" onclick="event.stopPropagation();deleteLead('${l.id}')">🗑</button></td>
       </tr>`;
     }).join('');
     c.innerHTML = `<div style="overflow-x:auto"><table>
-      <thead><tr><th>Date</th><th>Client</th><th>Ville</th><th>Source</th><th>Simulateur</th><th>Budget</th><th>Statut</th><th>Alerte</th><th>Commentaire</th><th></th></tr></thead>
+      <thead><tr><th>Date</th><th>Client ✏️</th><th>Ville</th><th>Source</th><th>Simulateur</th><th>Budget</th><th>Statut</th><th>Alerte</th><th>Commentaire</th><th></th></tr></thead>
       <tbody>${rows}</tbody>
     </table></div>`;
+    // Add click listeners to rows
+    c.querySelectorAll('tbody tr').forEach(function(tr, idx) {
+      tr.style.cursor = 'pointer';
+      tr.addEventListener('click', function(e) {
+        if (!e.target.closest('.btn-delete')) openModal(data[idx]);
+      });
+    });
   } else {
     const cards = data.map(l => {
       const a = alertLevel(l);
