@@ -4,7 +4,11 @@ exports.handler = async (event) => {
   const headers = { "Content-Type": "application/json" };
 
   try {
-    const store = getStore("leads");
+    const store = getStore({
+      name: "leads",
+      siteID: process.env.SITE_ID || process.env.NETLIFY_SITE_ID,
+      token: process.env.NETLIFY_TOKEN || process.env.NETLIFY_ACCESS_TOKEN
+    });
 
     if (event.httpMethod === "GET") {
       const list = await store.list();
