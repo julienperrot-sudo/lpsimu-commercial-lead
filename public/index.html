@@ -735,7 +735,7 @@ function renderHistory() {
   if (histView === 'table') {
     const rows = data.map(l => {
       const a = alertLevel(l);
-      var rappelDue = l.rappel && new Date(l.rappel) <= new Date() && l.statut !== 'Gagné' && l.statut !== 'Perdu';
+      var rappelDue = l.rappel && new Date(l.rappel) <= new Date();
       return `<tr class="${a===2?'alert-red':a===1?'alert-orange':rappelDue?'rappel-today':''}" style="cursor:pointer" onclick="openModal(allLeads.find(function(x){return x.id==='${l.id}'}))"> 
         <td>${l.date}</td>
         <td><strong>${l.prenom||''} ${l.nom||''}</strong></td>
