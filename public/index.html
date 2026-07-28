@@ -466,6 +466,22 @@ function renderStats() {
   `;
 }
 
+async function deleteLead(id) {
+  if (!confirm("Supprimer ce lead ?")) return;
+  try {
+    const res = await fetch("/.netlify/functions/leads", {
+      method: "DELETE",
+      headers: {"Content-Type": "application/json"},
+      body: JSON.stringify({id})
+    });
+    allLeads = allLeads.filter(l => l.id !== id);
+    document.getElementById("histCount").textContent = allLeads.length;
+    renderHistory();
+  } catch(e) {
+    alert("Erreur suppression : " + e.message);
+  }
+}
+
 function renderHistory() {
   const data = getFiltered();
   renderStats();
@@ -494,7 +510,7 @@ function renderHistory() {
       </tr>`;
     }).join('');
     c.innerHTML = `<div style="overflow-x:auto"><table>
-      <thead><tr><th>Date</th><th>Client</th><th>Ville</th><th>Source</th><th>Simulateur</th><th>Budget</th><th>Statut</th><th>Alerte</th><th>Commentaire</th></tr></thead>
+      <thead><tr><th>Date</th><th>Client</th><th>Ville</th><th>Source</th><th>Simulateur</th><th>Budget</th><th>Statut</th><th>Alerte</th><th>Commentaire</th><th></th></tr></thead>
       <tbody>${rows}</tbody>
     </table></div>`;
   } else {
