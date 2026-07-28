@@ -328,16 +328,32 @@ function srcBtn(el) {
 <div class="modal-overlay" id="leadModal">
   <div class="modal">
     <div class="modal-header">
-      <h3 id="modalTitle">Détail lead</h3>
+      <h3 id="modalTitle">Fiche lead</h3>
       <button class="modal-close" onclick="closeModal()">✕</button>
     </div>
     <div class="modal-body">
       <div class="modal-grid" id="modalGrid"></div>
     </div>
+    <div class="modal-section">
+      <h4>💬 Commentaires</h4>
+      <div class="comment-history" id="commentHistory"></div>
+      <div class="comment-row" style="margin-top:12px;">
+        <select class="modal-input comment-type" id="newCommentType">
+          <option value="Téléphone">📞 Téléphone</option>
+          <option value="Email">📧 Email</option>
+          <option value="Physique">🤝 Physique</option>
+          <option value="Visio">💻 Visio</option>
+          <option value="WhatsApp">💬 WhatsApp</option>
+          <option value="Note">📝 Note</option>
+        </select>
+        <textarea class="modal-input comment-text" id="newCommentText" rows="2" placeholder="Ajouter un commentaire..."></textarea>
+        <button class="btn-add-comment" onclick="addComment()">+ Ajouter</button>
+      </div>
+    </div>
     <div class="modal-footer">
-      <button class="btn btn-delete" onclick="deleteFromModal()">🗑 Supprimer</button>
+      <button class="btn btn-del" onclick="delFromModal()">🗑 Supprimer</button>
       <button class="btn btn-outline" onclick="closeModal()">Annuler</button>
-      <button class="btn btn-dark" onclick="saveFromModal()">💾 Enregistrer les modifications</button>
+      <button class="btn btn-dark" onclick="saveModal()">💾 Enregistrer</button>
     </div>
   </div>
 </div>
@@ -642,7 +658,9 @@ function closeModal() {
   currentModalLead = null;
 }
 
-async function saveFromModal() {
+async function saveFromModal()
+// alias
+async function delFromModal_unused() {
   if (!currentModalLead) return;
   try {
     const res = await fetch('/.netlify/functions/leads', {
