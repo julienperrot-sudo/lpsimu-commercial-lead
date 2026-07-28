@@ -123,6 +123,57 @@ tbody tr.alert-red td { background:#FFEBEE !important; }
   header { padding:0 14px; }
   .tabs { padding:0 14px; }
 }
+
+  /* MODAL */
+  #leadModal {
+    display: none;
+  }
+  #leadModal.open {
+    display: flex !important;
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100vw !important;
+    height: 100vh !important;
+    background: rgba(0,0,0,0.65) !important;
+    z-index: 99999 !important;
+    align-items: center !important;
+    justify-content: center !important;
+    padding: 20px !important;
+    box-sizing: border-box !important;
+  }
+  .modal {
+    background: #fff;
+    border-radius: 12px;
+    width: 100%;
+    max-width: 600px;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+  }
+  .modal-header {
+    background: #1A1A2E;
+    padding: 14px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-radius: 12px 12px 0 0;
+  }
+  .modal-header h3 { color: #E8C547; font-size: 12px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; }
+  .modal-close { background: none; border: none; color: #fff; font-size: 20px; cursor: pointer; }
+  .modal-body { padding: 20px; }
+  .modal-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .modal-field { display: flex; flex-direction: column; gap: 4px; }
+  .modal-field.full { grid-column: 1/-1; }
+  .modal-field label { font-size: 10px; font-weight: 700; color: #666; text-transform: uppercase; letter-spacing: 1px; }
+  .modal-input { padding: 8px 10px; border: 1.5px solid #E0E0E0; border-radius: 6px; font-size: 12px; font-family: Arial, sans-serif; color: #1A1A2E; width: 100%; }
+  .modal-input:focus { outline: none; border-color: #E8C547; }
+  textarea.modal-input { min-height: 60px; resize: vertical; }
+  .modal-footer { display: flex; gap: 8px; justify-content: flex-end; padding: 0 20px 20px; flex-wrap: wrap; }
+  .btn-delete { background: transparent; color: #F44336; border: 1.5px solid #F44336; padding: 4px 10px; border-radius: 4px; font-size: 11px; font-weight: 700; cursor: pointer; }
+  .btn-delete:hover { background: #F44336; color: #fff; }
+  .row-link { cursor: pointer; }
+  .row-link:hover td { background: #FFF9C4 !important; }
 </style>
 </head>
 <body>
