@@ -580,6 +580,14 @@ function openModal(lead) {
     if (f.type==='select') {
       const opts = ['',...f.options].map(o => `<option value="${o}" ${o===val?'selected':''}>${o||'— Sélectionner —'}</option>`).join('');
       input = `<select class="modal-input" id="modal_${f.key}" onchange="currentModalLead['${f.key}']=this.value">${opts}</select>`;
+    } else if (f.type==='chance') {
+      var cv = parseInt(lead[f.key])||50;
+      input = '<div style="display:flex;align-items:center;gap:12px;padding:4px 0">' +
+        '<input type="range" min="0" max="100" step="5" value="'+cv+'" style="flex:1;accent-color:#E8C547;" ' +
+        'id="modal_'+f.key+'" ' +
+        'oninput="currentModalLead[''+f.key+'']=parseInt(this.value);document.getElementById('rv_'+f.key+'').textContent=this.value+'%'">' +
+        '<strong id="rv_'+f.key+'" style="min-width:40px;color:#1A1A2E;">'+cv+'%</strong>' +
+        '</div>';
     } else if (f.type==='textarea') {
       input = `<textarea class="modal-input" id="modal_${f.key}" rows="3" oninput="currentModalLead['${f.key}']=this.value">${val}</textarea>`;
     } else {
@@ -666,11 +674,12 @@ function renderHistory() {
         <td><span class="${badgeClass(l.statut)}">${l.statut}</span></td>
         <td>${alertPill(l)}</td>
         <td style="color:#666;font-size:11px;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${l.commentaires||''}</td>
+        <td style="text-align:center;font-weight:700;">${l.chance ? l.chance+'%' : '—'}</td>
         <td><button class="btn-delete" data-id="${l.id}" onclick="event.stopPropagation();deleteLead('${l.id}')">🗑</button></td>
       </tr>`;
     }).join('');
     c.innerHTML = `<div style="overflow-x:auto"><table>
-      <thead><tr><th>Date</th><th>Client ✏️</th><th>Ville</th><th>Source</th><th>Simulateur</th><th>Budget</th><th>Statut</th><th>Alerte</th><th>Commentaire</th><th></th></tr></thead>
+      <thead><tr><th>Date</th><th>Client ✏️</th><th>Ville</th><th>Source</th><th>Simulateur</th><th>Budget</th><th>Statut</th><th>Alerte</th><th>Commentaire</th><th>Chance</th><th></th></tr></thead>
       <tbody>${rows}</tbody>
     </table></div>`;
     // Add click listeners to rows
