@@ -658,9 +658,7 @@ function closeModal() {
   currentModalLead = null;
 }
 
-async function saveFromModal()
-// alias
-async function delFromModal_unused() {
+async function saveFromModal() {
   if (!currentModalLead) return;
   try {
     const res = await fetch('/.netlify/functions/leads', {
