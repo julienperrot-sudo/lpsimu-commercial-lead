@@ -615,6 +615,8 @@ let currentModalLead = null;
 
 function openModal(lead) {
   currentModalLead = JSON.parse(JSON.stringify(lead));
+  _modalLead = currentModalLead; // sync both references
+  if (!_modalLead.comments) _modalLead.comments = [];
   document.getElementById('modalTitle').textContent = (lead.prenom||'') + ' ' + (lead.nom||'') + ' — ' + (lead.simulateur||'Lead');
   const grid = document.getElementById('modalGrid');
   const SIMULATEURS = ['LP Box','LP1','LP2','LP3','LP4','LP5','LP Rally','LP Sur-mesure'];
@@ -663,6 +665,11 @@ function closeModal() {
 
 async function saveFromModal() {
   if (!currentModalLead) return;
+  // sync comments from _modalLead
+  if (_modalLead && _modalLead.id === currentModalLead.id) {
+    currentModalLead.comments = _modalLead.comments || [];
+    currentModalLead.rappel = _modalLead.rappel || '';
+  }
   try {
     const res = await fetch('/.netlify/functions/leads', {
       method: 'POST',
@@ -808,6 +815,7 @@ function openModal(lead) {
   if (!lead) return;
   _modalLead = JSON.parse(JSON.stringify(lead));
   if (!_modalLead.comments) _modalLead.comments = [];
+  currentModalLead = _modalLead; // sync back
   document.getElementById('modalTitle').textContent = (_modalLead.prenom||'') + ' ' + (_modalLead.nom||'');
   var SIMS = ['LP Box','LP1','LP2','LP3','LP4','LP5','LP Rally','LP Sur-mesure'];
   var SRCS = ['Instagram','Shopify','Site web','Téléphone','Email','Salon/Événement','Bouche-à-oreille','Autre'];
