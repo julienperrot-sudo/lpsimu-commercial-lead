@@ -317,11 +317,11 @@ function renderForm(lead) {
     var inp='';
     if(f.t==='select'){
       var opts=[''].concat(f.o).map(function(o){return '<option value="'+o+'" '+(o===v?'selected':'')+'>'+(o||'— Sélectionner —')+'</option>';}).join('');
-      inp='<select class="field-input '+(v?'filled':'')+'" onchange="if(currentLead)currentLead[''+f.k+'']=this.value;updateExcelRow()">'+opts+'</select>';
+      inp='<select class="field-input '+(v?'filled':'')+'" onchange="if(currentLead)currentLead[this.dataset.key]=this.value;updateExcelRow()">'+opts+'</select>';
     }else if(f.t==='textarea'){
-      inp='<textarea class="field-input '+(v?'filled':'')+'" rows="2" oninput="if(currentLead)currentLead[''+f.k+'']=this.value;updateExcelRow()">'+v+'</textarea>';
+      inp='<textarea class="field-input '+(v?'filled':'')+'" rows="2" oninput="if(currentLead)currentLead[this.dataset.key]=this.value;updateExcelRow()">'+v+'</textarea>';
     }else{
-      inp='<input class="field-input '+(v?'filled':'')+'" type="'+f.t+'" value="'+v+'" oninput="if(currentLead)currentLead[''+f.k+'']=this.value;updateExcelRow()">';
+      inp='<input class="field-input '+(v?'filled':'')+'" type="'+f.t+'" value="'+v+'" oninput="if(currentLead)currentLead[this.dataset.key]=this.value;updateExcelRow()">';
     }
     return '<div class="field'+(f.full?' full':'')+'"><label>'+f.l+'</label>'+inp+'</div>';
   }).join('');
