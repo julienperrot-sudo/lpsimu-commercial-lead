@@ -19,6 +19,7 @@ exports.handler = async (event) => {
           if (data) leads.push(data);
         } catch(e) {}
       }
+      // Sort by id descending (most recent first)
       leads.sort((a, b) => parseInt(b.id || 0) - parseInt(a.id || 0));
       return { statusCode: 200, headers, body: JSON.stringify(leads) };
     }
