@@ -12,14 +12,19 @@ exports.handler = async (event) => {
 
     if (event.httpMethod === "GET") {
       const list = await store.list();
+      const keys = list.blobs.map(b => b.key);
+      
+      // Fetch all in parallel with concurrency limit
+      const BATCH = 20;
       const leads = [];
-      for (const item of list.blobs) {
-        try {
-          const data = await store.get(item.key, { type: "json" });
-          if (data) leads.push(data);
-        } catch(e) {}
+      for (let i = 0; i < keys.length; i += BATCH) {
+        const batch = keys.slice(i, i + BATCH);
+        const results = await Promise.all(
+          batch.map(k => store.get(k, { type: "json" }).catch(() => null))
+        );
+        results.forEach(d => { if (d) leads.push(d); });
       }
-      // Sort by id descending (most recent first)
+      
       leads.sort((a, b) => parseInt(b.id || 0) - parseInt(a.id || 0));
       return { statusCode: 200, headers, body: JSON.stringify(leads) };
     }
