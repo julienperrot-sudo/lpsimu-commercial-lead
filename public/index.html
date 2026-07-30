@@ -563,12 +563,24 @@ function closeModal() {
   modalLead=null;
 }
 
+async function fetchWithRetry(url, opts, retries) {
+  for(var i=0; i<=retries; i++) {
+    try {
+      var r = await fetch(url, opts);
+      return r;
+    } catch(e) {
+      if(i===retries) throw e;
+      await new Promise(function(r){setTimeout(r, 1000*(i+1));});
+    }
+  }
+}
+
 async function saveModal() {
   if(!modalLead) return;
   var saveBtn=document.querySelector('#leadModal .btn-dark');
   saveBtn.disabled=true; saveBtn.textContent='⏳ Sauvegarde…';
   try {
-    var res=await fetch('/.netlify/functions/leads',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(modalLead)});
+    var res=await fetchWithRetry('/.netlify/functions/leads',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(modalLead)}, 2);
     var d=await res.json();
     if(d.error) throw new Error(d.error);
     // Update allLeads
