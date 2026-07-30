@@ -76,7 +76,7 @@ tbody tr{border-bottom:1px solid #F0F0F0;transition:background 0.1s;cursor:point
 tbody tr:hover td{background:#FFF9C4 !important;}
 tbody td{padding:8px 10px;vertical-align:middle;}
 .badge{display:inline-block;padding:2px 8px;border-radius:10px;font-size:10px;font-weight:700;}
-.b-nouveau{background:#FFF9C4;color:#827717;}.b-contact{background:#BBDEFB;color:#0D47A1;}
+.b-non-contacte{background:#FFE0B2;color:#E65100;}.b-nouveau{background:#FFF9C4;color:#827717;}.b-contact{background:#BBDEFB;color:#0D47A1;}
 .b-devis{background:#C8E6C9;color:#1B5E20;}.b-relance{background:#FFE0B2;color:#E65100;}
 .b-gagne{background:#E8C547;color:#1A1A2E;}.b-perdu{background:#EEE;color:#616161;}
 .alert-pill{display:inline-block;padding:1px 6px;border-radius:8px;font-size:10px;font-weight:700;}
@@ -85,6 +85,8 @@ tbody td{padding:8px 10px;vertical-align:middle;}
 .btn-del:hover{background:var(--red);color:#fff;}
 .rappel-badge{display:inline-block;background:var(--red);color:#fff;font-size:9px;font-weight:700;padding:1px 5px;border-radius:8px;margin-left:4px;vertical-align:middle;}
 @keyframes blink{0%,100%{background:#FFEBEE}50%{background:#FFCDD2}}
+  @keyframes blinkOrange{0%,100%{background:#FFF3E0}50%{background:#FFE0B2}}
+  .non-contacte td{animation:blinkOrange 1.2s infinite !important;}
 .rappel-today td{animation:blink 1s infinite !important;}
 .empty-state{text-align:center;padding:36px;color:var(--gray-dark);font-size:13px;}
 /* MODAL */
@@ -190,6 +192,7 @@ tbody td{padding:8px 10px;vertical-align:middle;}
           <input type="text" id="search" placeholder="🔍 Nom, email, ville…" oninput="renderHistory()">
           <select id="filterStatut" onchange="renderHistory()">
             <option value="">Tous les statuts</option>
+            <option>Non contacté</option>
             <option>Nouveau contact</option><option>Contact pris</option>
             <option>Devis envoyé</option><option>Relance</option>
             <option>Gagné</option><option>Perdu</option>
@@ -300,7 +303,7 @@ async function extractLead() {
 
 var SIMS=['LP Box','LP1','LP2','LP3','LP4','LP5','LP Rally','LP Sur-mesure'];
 var SRCS=['Instagram','Shopify','Site web','Téléphone','Email','Salon/Événement','Bouche-à-oreille','Autre'];
-var STTS=['Nouveau contact','Contact pris','Devis envoyé','Relance','Gagné','Perdu'];
+var STTS=['Non contact\u00e9','Nouveau contact','Contact pris','Devis envoyé','Relance','Gagné','Perdu'];
 
 function renderForm(lead) {
   var fields=[
@@ -398,7 +401,7 @@ function alertPill(l) {
 }
 
 function badgeClass(s) {
-  var m={'Nouveau contact':'nouveau','Contact pris':'contact','Devis envoyé':'devis','Relance':'relance','Gagné':'gagne','Perdu':'perdu'};
+  var m={'Non contact\u00e9':'non-contacte','Non contacte':'non-contacte','Nouveau contact':'nouveau','Contact pris':'contact','Devis envoyé':'devis','Relance':'relance','Gagné':'gagne','Perdu':'perdu'};
   return 'badge b-'+(m[s]||'nouveau');
 }
 
@@ -448,7 +451,8 @@ function renderHistory() {
     var rows=data.map(function(l,idx){
       var a=alertLevel(l);
       var rappelDue=l.rappel&&new Date(l.rappel)<=new Date();
-      var cls=rappelDue?'rappel-today':a===2?'alert-red':a===1?'alert-orange':'';
+      var nonContacte=l.statut==='Non contacte'||l.statut==='Non contact\u00e9';
+      var cls=rappelDue?'rappel-today':nonContacte?'non-contacte':a===2?'alert-red':a===1?'alert-orange':'';
       var nbComments=l.comments&&l.comments.length?'<span style="background:#E8C547;color:#1A1A2E;font-size:9px;font-weight:700;padding:1px 5px;border-radius:8px;margin-left:4px;">'+l.comments.length+'</span>':'';
       var rappelBadge=l.rappel?'<span class="rappel-badge">🔔 '+l.rappel+'</span>':'';
       return '<tr class="'+cls+'" onclick="openModal('+idx+')">'
@@ -469,6 +473,7 @@ function renderHistory() {
     var cards=data.map(function(l,idx){
       var a=alertLevel(l);
       var rappelDue=l.rappel&&new Date(l.rappel)<=new Date();
+      var nonContacte=l.statut==='Non contacte'||l.statut==='Non contact\u00e9';
       var cls=rappelDue?'rappel-today ':a===2?'alert-red ':a===1?'alert-orange ':'';
       return '<div style="background:#fff;border:0.5px solid var(--gray);border-radius:10px;padding:12px;cursor:pointer;border-left:3px solid '+(rappelDue?'var(--red)':a>0?'var(--orange)':'var(--yellow)')+';" onclick="openModal('+idx+')">'
         +'<div style="font-size:13px;font-weight:700;margin-bottom:4px;">'+(l.prenom||'')+' '+(l.nom||'')+'</div>'
