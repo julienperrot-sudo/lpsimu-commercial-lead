@@ -1,7 +1,10 @@
 const { getStore } = require("@netlify/blobs");
 
 exports.handler = async (event) => {
-  const headers = { "Content-Type": "application/json" };
+  const headers = { 
+    "Content-Type": "application/json",
+    "Cache-Control": "no-cache"
+  };
 
   try {
     const store = getStore({
@@ -14,16 +17,14 @@ exports.handler = async (event) => {
       const list = await store.list();
       const keys = list.blobs.map(b => b.key);
       
-      // Fetch all in parallel with concurrency limit
-      const BATCH = 20;
-      const leads = [];
-      for (let i = 0; i < keys.length; i += BATCH) {
-        const batch = keys.slice(i, i + BATCH);
-        const results = await Promise.all(
-          batch.map(k => store.get(k, { type: "json" }).catch(() => null))
-        );
-        results.forEach(d => { if (d) leads.push(d); });
-      }
+      // Fetch ALL in parallel at once for max speed
+      const results = await Promise.allSettled(
+        keys.map(k => store.get(k, { type: "json" }))
+      );
+      
+      const leads = results
+        .filter(r => r.status === "fulfilled" && r.value)
+        .map(r => r.value);
       
       leads.sort((a, b) => parseInt(b.id || 0) - parseInt(a.id || 0));
       return { statusCode: 200, headers, body: JSON.stringify(leads) };
