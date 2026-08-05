@@ -1,10 +1,7 @@
 const { getStore } = require("@netlify/blobs");
 
 exports.handler = async (event) => {
-  const headers = { 
-    "Content-Type": "application/json",
-    "Cache-Control": "no-cache"
-  };
+  const headers = { "Content-Type": "application/json" };
 
   try {
     const store = getStore({
@@ -13,32 +10,41 @@ exports.handler = async (event) => {
       token: process.env.NETLIFY_TOKEN || process.env.NETLIFY_ACCESS_TOKEN
     });
 
+    // GET - return all leads from single blob
     if (event.httpMethod === "GET") {
-      const list = await store.list();
-      const keys = list.blobs.map(b => b.key);
-      
-      // Fetch ALL in parallel at once for max speed
-      const results = await Promise.allSettled(
-        keys.map(k => store.get(k, { type: "json" }))
-      );
-      
-      const leads = results
-        .filter(r => r.status === "fulfilled" && r.value)
-        .map(r => r.value);
-      
-      leads.sort((a, b) => parseInt(b.id || 0) - parseInt(a.id || 0));
-      return { statusCode: 200, headers, body: JSON.stringify(leads) };
+      try {
+        const data = await store.get("all_leads", { type: "json" });
+        const leads = data || [];
+        leads.sort((a, b) => parseInt(b.id || 0) - parseInt(a.id || 0));
+        return { statusCode: 200, headers, body: JSON.stringify(leads) };
+      } catch(e) {
+        return { statusCode: 200, headers, body: JSON.stringify([]) };
+      }
     }
 
+    // POST - add or update a lead
     if (event.httpMethod === "POST") {
       const lead = JSON.parse(event.body);
-      await store.setJSON(lead.id.toString(), lead);
+      let leads = [];
+      try {
+        leads = await store.get("all_leads", { type: "json" }) || [];
+      } catch(e) {}
+      const idx = leads.findIndex(l => l.id === lead.id);
+      if (idx >= 0) leads[idx] = lead;
+      else leads.push(lead);
+      await store.setJSON("all_leads", leads);
       return { statusCode: 200, headers, body: JSON.stringify({ success: true }) };
     }
 
+    // DELETE - remove a lead
     if (event.httpMethod === "DELETE") {
       const { id } = JSON.parse(event.body);
-      await store.delete(id.toString());
+      let leads = [];
+      try {
+        leads = await store.get("all_leads", { type: "json" }) || [];
+      } catch(e) {}
+      leads = leads.filter(l => l.id !== id);
+      await store.setJSON("all_leads", leads);
       return { statusCode: 200, headers, body: JSON.stringify({ success: true }) };
     }
 
