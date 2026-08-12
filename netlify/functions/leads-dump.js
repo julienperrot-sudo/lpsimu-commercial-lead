@@ -1,14 +1,11 @@
 const { getStore } = require("@netlify/blobs");
-const https = require("https");
 
 exports.handler = async (event) => {
   const headers = { "Content-Type": "application/json", "Access-Control-Allow-Origin": "*" };
   try {
-    const store = getStore({
-      name: "leads",
-      siteID: process.env.SITE_ID || process.env.NETLIFY_SITE_ID,
-      token: process.env.NETLIFY_TOKEN || process.env.NETLIFY_ACCESS_TOKEN
-    });
+    // En contexte Netlify Function, getStore utilise automatiquement l'auth du site
+    // Ne PAS passer de token pour laisser le SDK gérer l'authentification
+    const store = getStore("leads");
 
     let leads = null, blobError = null, keys = [];
     try { leads = await store.get("all_leads", { type: "json" }); } catch(e) { blobError = e.message; }
@@ -21,11 +18,7 @@ exports.handler = async (event) => {
         count: Array.isArray(leads) ? leads.length : null,
         blobError,
         allKeys: keys,
-        leads,
-        env: {
-          hasSiteId: !!(process.env.SITE_ID || process.env.NETLIFY_SITE_ID),
-          hasToken: !!(process.env.NETLIFY_TOKEN || process.env.NETLIFY_ACCESS_TOKEN)
-        }
+        leads
       })
     };
   } catch(e) {
